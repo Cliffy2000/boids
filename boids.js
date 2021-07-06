@@ -1,8 +1,13 @@
 var boids = [];
-var boidCount = 100;
+var boidCount = 125;
 
+/*
 const width = window.innerWidth;
 const height = window.innerHeight;
+*/
+
+var width = 1050;
+var height = 700;
 
 var mouseX = width / 2;
 var mouseY = height / 2;
@@ -20,9 +25,10 @@ class Boid {
     this.direction = Math.atan2(this.vY, this.vX);
     this.aX = Math.random() * 8 - 4;
     this.aY = Math.random() * 8 - 4;
-    this.maxSpeed = 5;
-    this.maxForce = 0.4;
-    this.viewRange = 100;
+    this.maxSpeed = 4;
+    this.maxForce = 0.25;
+    this.range = 100;
+    this.influence = 1;
   }
 
   draw(ctx) {
@@ -102,7 +108,7 @@ class Boid {
   }
 
   mouseSeekFlee(mode=1) {
-    if (Math.sqrt((this.x - mouseX)**2 + (this.y - mouseY)**2) < this.viewRange) {
+    if (Math.sqrt((this.x - mouseX)**2 + (this.y - mouseY)**2) < this.range) {
       this.seekFlee(mouseX, mouseY, mode=mode);
       this.seekFlee(mouseX, mouseY, mode=mode);
       this.seekFlee(mouseX, mouseY, mode=mode);
@@ -114,7 +120,7 @@ class Boid {
     let desiredY = targetY - this.y;
     let dist = Math.sqrt(desiredX**2 + desiredY**2);
 
-    let coeff = Math.min(dist / this.viewRange, 1) ** 0.75;
+    let coeff = Math.min(dist / this.range, 1) ** 0.75;
     if (coeff > 0.01) {
       this.aX += ((desiredX * (coeff / dist) * this.maxSpeed) - this.vX);
       this.aY += ((desiredY * (coeff / dist) * this.maxSpeed) - this.vY);
@@ -133,7 +139,7 @@ class Boid {
       let distY = each.y - this.y;
       let dist = Math.sqrt(distX**2 + distY**2);
 
-      if (0 < dist && dist < this.viewRange) {
+      if (0 < dist && dist < this.range) {
         steeringX += (distX / Math.sqrt(distX**2 + distY**2));
         steeringY += (distY / Math.sqrt(distX**2 + distY**2));
       }
@@ -154,10 +160,10 @@ class Boid {
       let distY = each.y - this.y;
       let dist = Math.sqrt(distX**2 + distY**2);
 
-      if (0 < dist && dist < this.viewRange) {
-        count += 1;
-        avgX += each.x;
-        avgY += each.y;
+      if (0 < dist && dist < this.range) {
+        count += each.influence;
+        avgX += each.x * each.influence;
+        avgY += each.y * each.influence;
       }
     }
 
@@ -176,10 +182,10 @@ class Boid {
       let distY = each.y - this.y;
       let dist = Math.sqrt(distX**2 + distY**2);
 
-      if (0 < dist && dist < this.viewRange) {
-        count += 1;
-        avgvX += each.vX;
-        avgvY += each.vY;
+      if (0 < dist && dist < this.range) {
+        count += each.influence;
+        avgvX += each.vX * each.influence;
+        avgvY += each.vY * each.influence;
       }
     }
 
@@ -211,12 +217,26 @@ function updateMouse(event) {
 }
 
 
+var test = 1;
+function testChange() {
+  test *= -1;
+}
+
+var range = 50;
+function rangeChange() {
+  range = this.value;
+}
+
+
 function nextFrame() {
   for (let b of boids) {
     b.separate(boids);
     b.cohere(boids);
     b.align(boids);
-    b.mouseSeekFlee(mode=1);
+    if (test == 1) {
+      b.mouseSeekFlee(mode=1);
+    }
+    //
 
     b.limitAcceleration();
     b.update();
@@ -230,20 +250,29 @@ function nextFrame() {
     b.draw(ctx);
   }
 
+  console.log(range);
+
   window.requestAnimationFrame(nextFrame);
 }
 
 
 window.onload = () => {
-  window.addEventListener("resize", resizeCanvas, false);
+  //window.addEventListener("resize", resizeCanvas, false);
   resizeCanvas();
 
   spawnBoids();
+  boids[0].influence = 25;
+  boids[0].color = "#ff0000";
 
   var mouse = document.querySelector("#Boids");
   mouse.addEventListener("mousemove", updateMouse, false);
   mouse.addEventListener("mouseenter", updateMouse, false);
   mouse.addEventListener("mouseleave", updateMouse, false);
+
+  document.getElementById("test").addEventListener("click", testChange);
+  document.getElementById("range").addEventListener("change", rangeChange);
+  document.getElementById("range").addEventListener("click", rangeChange);
+  document.getElementById("range").addEventListener("input", rangeChange);
 
   window.requestAnimationFrame(nextFrame);
 }
