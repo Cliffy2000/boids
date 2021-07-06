@@ -1,5 +1,5 @@
 var boids = [];
-var boidCount = 125;
+var boidCount = 1;
 
 /*
 const width = window.innerWidth;
@@ -222,11 +222,6 @@ function testChange() {
   test *= -1;
 }
 
-var range = 50;
-function rangeChange() {
-  range = this.value;
-}
-
 
 function nextFrame() {
   for (let b of boids) {
@@ -250,7 +245,7 @@ function nextFrame() {
     b.draw(ctx);
   }
 
-  console.log(range);
+  document.getElementById("rangeText").innerHTML = document.getElementById("range").value;
 
   window.requestAnimationFrame(nextFrame);
 }
@@ -269,10 +264,6 @@ window.onload = () => {
   mouse.addEventListener("mouseenter", updateMouse, false);
   mouse.addEventListener("mouseleave", updateMouse, false);
 
-  document.getElementById("test").addEventListener("click", testChange);
-  document.getElementById("range").addEventListener("change", rangeChange);
-  document.getElementById("range").addEventListener("click", rangeChange);
-  document.getElementById("range").addEventListener("input", rangeChange);
 
   window.requestAnimationFrame(nextFrame);
 }
