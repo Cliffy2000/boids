@@ -7,9 +7,18 @@
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
-    <canvas id="Boids"></canvas>
-    <button id="test"></button>
-    <input type="range" min="1" max="100" value="50" class="slider" id="range">
-    <p id="rangeText">50</p>
+    <!--
+      <canvas id="Boids"></canvas>
+      <button id="test"></button>
+      <input type="range" min="1" max="100" value="50" class="slider" id="range">
+      <p id="rangeText">50</p>
+    -->
+    <div id="testDiv">
+      <h2>Boids</h2>
+      <canvas id="Boids"></canvas>
+      <button id="test" onclick="testChange()"></button>
+      <input type="range" min="1" max="100" value="50" class="slider" id="range">
+      <p id="rangeText">50</p>
+    </div>
   </body>
 </html>

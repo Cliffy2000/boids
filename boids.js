@@ -1,17 +1,19 @@
 var boids = [];
-var boidCount = 1;
+var boidCount = 100;
 
 /*
 const width = window.innerWidth;
 const height = window.innerHeight;
 */
 
-var width = 1050;
-var height = 700;
-
+var width;
+var height;
 var mouseX = width / 2;
 var mouseY = height / 2;
+var test = 1;
 
+var v1 = -0.1;
+var v2 = 0.1
 
 class Boid {
   constructor() {
@@ -29,6 +31,9 @@ class Boid {
     this.maxForce = 0.25;
     this.range = 100;
     this.influence = 1;
+
+    this.wanderCheck = false;
+    this.wanderAngle = Math.random() * Math.PI * 2;
   }
 
   draw(ctx) {
@@ -130,6 +135,11 @@ class Boid {
     }
   }
 
+  pursuit(target) {
+    let dist = Math.sqrt((target.x - this.x)**2 + (target.y - this.y)**2);
+    let estimateT = dist / (this.MaxSpeed + target.MaxSpeed)
+  }
+
   separate(group) {
     let steeringX = 0;
     let steeringY = 0;
@@ -194,6 +204,22 @@ class Boid {
       this.aY += (avgvY/count - this.vY);
     }
   }
+
+  wander() {
+    if (this.wanderCheck == true) {
+      this.wanderAngle += (Math.random()*0.5 - 0.25);
+
+      if (this.wanderAngle < -Math.PI) {
+        this.wanderAngle += Math.PI;
+      }
+      if (this.wanderAngle > Math.PI) {
+        this.wanderAngle -= Math.PI;
+      }
+
+      this.aX += Math.sin(this.wanderAngle);
+      this.aY += Math.cos(this.wanderAngle);
+    }
+  }
 }
 
 
@@ -212,12 +238,11 @@ function resizeCanvas() {
 
 
 function updateMouse(event) {
-  mouseX = event.pageX;
-  mouseY = event.pageY;
+  mouseX = event.pageX - document.getElementById("Boids").offsetLeft;
+  mouseY = event.pageY - document.getElementById("Boids").offsetTop;
 }
 
 
-var test = 1;
 function testChange() {
   test *= -1;
 }
@@ -225,13 +250,13 @@ function testChange() {
 
 function nextFrame() {
   for (let b of boids) {
+    
     b.separate(boids);
     b.cohere(boids);
     b.align(boids);
-    if (test == 1) {
-      b.mouseSeekFlee(mode=1);
-    }
-    //
+    b.mouseSeekFlee(mode=test);
+    
+    //b.wander();
 
     b.limitAcceleration();
     b.update();
@@ -246,24 +271,24 @@ function nextFrame() {
   }
 
   document.getElementById("rangeText").innerHTML = document.getElementById("range").value;
-
   window.requestAnimationFrame(nextFrame);
 }
 
 
 window.onload = () => {
-  //window.addEventListener("resize", resizeCanvas, false);
+  width = document.getElementById("testDiv").offsetWidth;
+  height = window.innerHeight - 150;
+  // this is to make the canvas fullscreen
+  //window.addEventListener("resize", resizeCanvas, false); 
   resizeCanvas();
 
   spawnBoids();
-  boids[0].influence = 25;
-  boids[0].color = "#ff0000";
+  boids[0].wanderCheck = true;
 
   var mouse = document.querySelector("#Boids");
   mouse.addEventListener("mousemove", updateMouse, false);
   mouse.addEventListener("mouseenter", updateMouse, false);
   mouse.addEventListener("mouseleave", updateMouse, false);
-
 
   window.requestAnimationFrame(nextFrame);
 }
