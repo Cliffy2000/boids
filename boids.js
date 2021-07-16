@@ -232,6 +232,34 @@ class Boid {
     }
   }
 
+  follow(leader) {
+    let dist = pointLineDist(this.x, this.y, leader.x, leader.y, leader.x + leader.vX*40, leader.y + leader.vY*40);
+    console.log(leader.x-this.x, dist)
+
+  }
+}
+
+
+function pointLineDist(pX, pY, lX1, lY1, lX2, lY2) {
+  // just in case the length of the line is 0
+  if (lX1 == lX2 && lY1 == lY2) {
+    return Math.sqrt((pX - lX1)**2 + (pY - lY1)**2);
+  }
+
+  let p1 = (pX - lX1)*(lX2 - lX1) + (pY - lY1)*(lY2 - lY1);
+  let p2 = (lX2 - lX1)**2 + (lY2 - lY1)**2;
+  let p = p1 / p2;
+
+  if (p < 0) {
+    console.log('p < 0', p);
+    return Math.sqrt((pX - lX1)**2 + (pY - lY1)**2);
+  } else if (p > 1) {
+    console.log('p > 1', p);
+    return Math.sqrt((pX - lX2)**2 + (pY - lY1)**2);
+  } else {
+    console.log('0 < p < 1', p);
+    return Math.sqrt((pX - (lX1 + p * (lX2 - lX1)))**2 + (pY - (lY1 + p * (lY2 - lY1)))**2);
+  }
 }
 
 
@@ -261,7 +289,7 @@ function testChange() {
 
 
 function nextFrame() {
-  boids[0].pursuit(boids[1]);
+  boids[1].follow(boids[0]);
   for (let b of boids) {
     /*
     b.separate(boids);
@@ -297,8 +325,19 @@ window.onload = () => {
 
   spawnBoids();
   boids[0].color = "#ff0000";
-  boids[0].maxSpeed = 5;
-  boids[1].maxSpeed = 2;
+
+  boids[0].x = 200;
+  boids[0].y = 400;
+  boids[0].vX = 1;
+  boids[0].vY = 0;
+  boids[0].aX = 0;
+  boids[0].aY = 0;
+  boids[1].x = 500;
+  boids[1].y = 400;
+  boids[1].vX = 0;
+  boids[1].vY = 0;
+  boids[1].aX = 0;
+  boids[1].aY = 0;
 
   var mouse = document.querySelector("#Boids");
   mouse.addEventListener("mousemove", updateMouse, false);
